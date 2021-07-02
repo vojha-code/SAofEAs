@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addOn>
+  <identifier>9a123834-88b0-4056-88ad-7e9120432bdd</identifier>
+  <displayType>Collection</displayType>
+  <translatedDisplayType>
+    <en_US>Collection</en_US>
+    <ja_JP>コレクション</ja_JP>
+    <ko_KR>컬렉션</ko_KR>
+    <zh_CN>集合</zh_CN>
+  </translatedDisplayType>
+  <name>Yarpiz Evolutionary Algorithms Toolbox (YPEA)</name>
+  <author>Yarpiz</author>
+  <version>1.0.1</version>
+  <downloadUrl>https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/9a123834-88b0-4056-88ad-7e9120432bdd/692abd62-71b6-4e30-a5b9-c0d78c2f212d/packages/zip?src=addons_ml_desktop_install&amp;profile_id=16225396&amp;license=40705130&amp;release_family=R2019b</downloadUrl>
+  <licenseUrl>https://addons.mathworks.com/registry/v1/9a123834-88b0-4056-88ad-7e9120432bdd/1.0.1/-/license</licenseUrl>
+  <previewImageUrl>https://www.mathworks.com/responsive_image/160/120/0/0/0/cache/matlabcentral/mlc-downloads/downloads/9a123834-88b0-4056-88ad-7e9120432bdd/692abd62-71b6-4e30-a5b9-c0d78c2f212d/images/screenshot.png</previewImageUrl>
+  <releaseNotesUrl>https://www.mathworks.com/add-ons/9a123834-88b0-4056-88ad-7e9120432bdd/692abd62-71b6-4e30-a5b9-c0d78c2f212d/releaseNotes</releaseNotesUrl>
+  <installationFolder>Collections</installationFolder>
+</addOn>
