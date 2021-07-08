@@ -4,8 +4,8 @@ The Sensitivity Analysis of Evolutinary Algorithms code reposiotry provides an c
 
 ## Evolutionary Algorithms Studied
 - Single Objective Algorithms (SA_SOO folder)
-    - Diffrential Evolution
-    - Covariance Matrix Based Evolutionary Strategy
+    - Diffrential Evolution (DE)
+    - Covariance Matrix Adaptation Evolution Strategy (CMA-ES)
 - Multi-Ojective Algorithms (SA_MOO folder)
-    - NSGA-III
-    - MOEA/D
+    - Non-dominated Sorting Genetic Algorithm III (NSGA-III)
+    - Multiobjective Evolutionary Algorithm Based on Decomposition (MOEA/D)
