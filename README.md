@@ -9,3 +9,8 @@ The Sensitivity Analysis of Evolutinary Algorithms code reposiotry provides an c
 - Multi-Ojective Algorithms (SA_MOO folder)
     - Non-dominated Sorting Genetic Algorithm III (NSGA-III)
     - Multiobjective Evolutionary Algorithm Based on Decomposition (MOEA/D)
+- Results of Sansitivity Analysis of Evolutionary Algorithms (SA_EA_Results)
+    - Results MOO
+    - Results SOO
+    - Py Processess Data (code for processing data)
+- README
