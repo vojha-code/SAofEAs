@@ -45,7 +45,7 @@ NRun = 30;
 r = 20; %
 
 % Morris
-L = 12; % number of levels in the uniform grid
+L = 10; % number of levels in the uniform grid - 12
 
 % MorrisLHS, SOBOL
 SampStrategy = 'lhs' ; % Latin Hypercube
@@ -94,7 +94,7 @@ for dim =1:length(Dimensions)
             xmax=Parameters(n).Xmax;
             M=length(Parameters(n).labels);
             DistrPar = cell(M,1);
-            
+
             fprintf('Algorithm %s \n \n', func2str(Algorithm));
             for i=1:M
                 DistrPar{i} = [ xmin(i) xmax(i)] ;
@@ -115,51 +115,51 @@ for dim =1:length(Dimensions)
                 X = MAT_LHS.X;
                 fprintf('MorrisLHS X:  %d %d \n', size(X));
             end
-            
+
             if(Analysis=="SOBOL")
                 % Sample parameter space using the resampling strategy proposed by
                 % (Saltelli, 2008; for reference and more details, see help of functions
                 % vbsa_resampling and vbsa_indices)
-                N = 28;
-                
+                N = 30; % 28
+
                 % Comment: the base sample size N is not the actual number of input
                 % samples that will be evaluated. In fact, because of the resampling
                 % strategy, the total number of model evaluations to compute the two
                 % variance-based indices is equal to N*(M+2)
                 X_AAT = AAT_sampling(SampStrategy,M,DistrFun,DistrPar,2*N);
                 %[ X, XB, XC ] = vbsa_resampling(X_AAT) ;
-                
+
                 %save('XA_SOBOL.mat');
                 %save('XB_SOBOL.mat');
                 %save('XC_SOBOL.mat');
-                
+
                 MAT_A = load('XA_SOBOL.mat');
                 MAT_B = load('XB_SOBOL.mat');
                 MAT_C = load('XC_SOBOL.mat');
-                
+
                 X = MAT_A.X;
                 XB = MAT_B.XB;
                 XC = MAT_C.XC;
-                
+
                 fprintf('SOBOL X:  %d %d \n', size(X));
                 fprintf('SOBOL XB: %d %d \n', size(XB));
                 fprintf('SOBOL XC: %d %d \n', size(XC));
             end
-            
+
             %break;
             %error('stop');
-            
+
             progressbar('Problem',length(ProblemsList));
             for i=1:length(ProblemsList)
                 if(i > 0)
                     Problem = {ProblemsList{i},Dimensions(dim)};
                     %Problem={Problems{i,1},Problems{i,2}};
                     folder = strcat(datestr(now, 'yyyy-mm-dd HH-MM-SS')," ",Analysis,"-",func2str(Algorithm),"-Problem-",func2str(Problem{1,1}),"-",int2str(Problem{1,2}));
-                    
+
                     if(exist(strcat(folder,'/ModelEval'),'dir')~=7)
                         mkdir(strcat(folder,'/ModelEval'));
                     end
-                    
+
                     root = cd(strcat(folder,'/ModelEval'));
                     absPath = fullfile(my_dir,folder,'/ModelEval/');
                     %Execution
@@ -171,12 +171,12 @@ for dim =1:length(Dimensions)
                         YC = model_evaluation(myfun,XC, Algorithm, Problem, Metrics, Termination, NRun, parallel,absPath); % size (r*(M+1),3)
                     end
                     cd(root);
-                    
+
                     if(exist(strcat(folder,'/ModelResults'),'dir')~=7)
                         mkdir(strcat(folder,'/ModelResults'));
                     end
                     root = cd(strcat(folder,'/ModelResults'));
-                    
+
                     for j=1:length(Y(1,:))
                         filename = Metrics{j};
                         if(Analysis=="SOBOL")

@@ -16,16 +16,21 @@ cd(my_dir)
 addpath(genpath(my_dir))
 
 %% Step 2a (setup Problem )
+%global sd
+%global ma;
 
 load('Testbench.mat'); % problems_f variable is testbench
 Problems = problems_f; % Problems
+% Other data taken as gloabal variabls
+
+
 
 %% Step 2b (setup Algorithms and Function to use)
 Algorithms = {@() ypea_cmaes(), @() ypea_de()};
 Metrics = {'BestSolution','ExecutionTime','BestSolutionGen'};
 Termination = {'NEvaluations', 10000, 'MaxIter', 10000}; % MaxIter 10000  needed to avoid early stop for NEvaluations
 myfun = 'evaluateSOEvAlgo' ; % Function that
-parallel = false;
+parallel = true;
 
 %% Step 2c (setup Parameters)
 Parameters(1).labels = {'lambda', 'mu-lambda_ratio', 'sigma0', 'alpha_mu','rescale_sigma0'};
@@ -38,13 +43,13 @@ Parameters(2).Xmax = [1000, 5, 0.5 , 3, 1, 1, 2];
 
 Analyses = {'Morris','MorrisLHS','SOBOL'};
 design_types = {'trajectory', 'radial', ''}; % design_types for the analyses
-NRun = 1;
+NRun = 10;%0;
 
 % Morris, MorrisLHS
-r = 170; %
+r =  50;%r = 170; %
 
 % Morris
-L = 30  ; % number of levels in the uniform grid
+L = 10;%L = 30  ; % number of levels in the uniform grid
 
 % MorrisLHS, SOBOL
 SampStrategy = 'lhs' ; % Latin Hypercube
@@ -84,15 +89,12 @@ progressbar('buh','reset');
 for a=2:numel(Analyses)-1
     Analysis = Analyses(a);
     progressbar('Algotithm',numel(Algorithms));
-    for n=1:numel(Algorithms)-1
+    for n=2:numel(Algorithms)
         Algorithm = Algorithms{n};
         xmin=Parameters(n).Xmin;
         xmax=Parameters(n).Xmax;
         M=length(Parameters(n).labels);
         DistrPar = cell(M,1);
-        if(n == 2)
-            r = 130; % change for DE
-        end 
             
         fprintf('Algorithm %s \n', Algorithm().short_name); 
         for i=1:M
@@ -101,11 +103,27 @@ for a=2:numel(Analyses)-1
         if(Analysis=="Morris")
             % use the sampling method originally proposed by Morris (1991):
             X = Morris_sampling(r,xmin,xmax,L); % (r*(M+1),M)
+            if n == 1
+                %save('X_Moris1.mat');
+                MAT_M = load('X_Moris1.mat');
+            else
+                %save('X_Moris2.mat');
+                MAT_M = load('X_Moris2.mat');
+            end
+            X = MAT_M.X;
             fprintf('Morris X:  %d %d \n', size(X)); 
         end
         if(Analysis=="MorrisLHS")
             % Latin Hypercube sampling strategy
             X = OAT_sampling(r,M,DistrFun,DistrPar,SampStrategy,design_types{a});
+            if n == 1
+                %save('X_LHS1.mat');
+                MAT_LHS = load('X_LHS1.mat');
+            else
+                %save('X_LHS2.mat');
+                MAT_LHS = load('X_LHS2.mat');
+            end
+            X = MAT_LHS.X;
             fprintf('MorrisLHS X:  %d %d \n', size(X)); 
         end
         
@@ -113,10 +131,7 @@ for a=2:numel(Analyses)-1
             % Sample parameter space using the resampling strategy proposed by
             % (Saltelli, 2008; for reference and more details, see help of functions
             % vbsa_resampling and vbsa_indices)
-            N = 150;
-            if(n == 2)
-                N = 100; % change for DE
-            end 
+            N = 30;
             
             % Comment: the base sample size N is not the actual number of input
             % samples that will be evaluated. In fact, because of the resampling
@@ -124,6 +139,28 @@ for a=2:numel(Analyses)-1
             % variance-based indices is equal to N*(M+2)
             X_AAT = AAT_sampling(SampStrategy,M,DistrFun,DistrPar,2*N);
             [ X, XB, XC ] = vbsa_resampling(X_AAT) ;
+            if n == 1
+                %save('XA_SOBOL1.mat');
+                %save('XB_SOBOL1.mat');
+                %save('XC_SOBOL1.mat');
+
+                MAT_A = load('XA_SOBOL1.mat');
+                MAT_B = load('XB_SOBOL1.mat');
+                MAT_C = load('XC_SOBOL1.mat');
+            else
+                %save('XA_SOBOL2.mat');
+                %save('XB_SOBOL2.mat');
+                %save('XC_SOBOL2.mat');
+
+                MAT_A = load('XA_SOBOL2.mat');
+                MAT_B = load('XB_SOBOL2.mat');
+                MAT_C = load('XC_SOBOL2.mat');
+            end
+            
+
+            X = MAT_A.X;
+            XB = MAT_B.XB;
+            XC = MAT_C.XC;
             
             fprintf('SOBOL X:  %d %d \n', size(X)); 
             fprintf('SOBOL XB: %d %d \n', size(XB)); 
@@ -134,7 +171,9 @@ for a=2:numel(Analyses)-1
         
         progressbar('Problem',numel(Problems));
         for i=1:numel(Problems)
-            if(i == 19)
+            if(i == 8)% && (i ~= 19) && (i ~= 20)
+                fprintf('Runing problem...: %d \n',i);
+                
                 Problem=Problems(i);
                 AlgoObj = Algorithm();
                 folder = strcat(datestr(now, 'yyyy-mm-dd HH-MM-SS')," ",Analysis,"-",AlgoObj.short_name,"-Problem",int2str(i));

@@ -13,7 +13,7 @@ function Score = evaluateSOEvAlgo(Parameters, Algorithm, Problem, Metrics, Termi
     ypea_algo.SetTermination(Termination);
     % Disable display
     ypea_algo.display=false;
-    fprintf('Progress sample : %s \n',folder);
+    %fprintf('Progress sample : %s \n',folder);
     %fprintf(['\n' repmat('.',1,NRun) '\n\n']);
     if(parallel)
          parfor i=1:NRun
