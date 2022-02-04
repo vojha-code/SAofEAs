@@ -3,6 +3,7 @@
 Created on Wed Aug 18 16:20:46 2021
 
 @author: yl918888
+
 """
 import os 
 import numpy as np
@@ -10,7 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plots = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\py_process_data\plots'
 #%%
-root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO\de-cma-es-10K_nfeval'
+root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO\SOO_10K_FunEval_33_Funs'
 listdir = os.listdir(root)
 
 DE = [r"$\lambda$", r"$\mathbf{b}_{\mathrm{type}}$", r"$\mathbf{b}\lambda_{\mathrm{ratio}}$", r"$\mathrm{X}$", r"$P[\mathrm{X}]$", r"$\beta_{\mathrm{min}}$", r"$\beta_{\mathrm{max}}$"]
@@ -230,7 +231,7 @@ plt.show()
         
 #%% Line plot of all data
 
-root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO\de-cma-es-10K_nfeval'
+root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO'
 listdir = os.listdir(root)
 
 checkTest = '_All.csv'
@@ -240,7 +241,8 @@ for file in listdir:
         pathData = os.path.join(root,file)
         data = pd.read_csv(pathData)    
         columns = data.columns.tolist()
-        fig, axs = plt.subplots(1, len(columns)-4, figsize=(2*(len(columns)-4), (len(columns)-4)/2+1), sharey =True)
+        reduce = 5
+        fig, axs = plt.subplots(1, len(columns)-reduce, figsize=(2*(len(columns)-reduce), (len(columns)-reduce)/2+1), sharey =True)
         #fig, axs = plt.subplots(1, len(columns)-4, sharey =True)
         
         if 'DE' in file:
@@ -254,9 +256,9 @@ for file in listdir:
 
         colors = [cmap(each) for each in np.linspace(0, 1, len(paramSTR))]                  
         j = 0
-        for paramIndex in range(3,len(columns)-1):
-            panamLabel = paramSTR[paramIndex-3]
-            colorsVal = colors[paramIndex-3]
+        for paramIndex in range(3,len(columns)-2):
+            panamLabel = paramSTR[paramIndex-4]
+            colorsVal = colors[paramIndex-4]
             print(paramIndex,'  ',columns[paramIndex], '=', panamLabel)
             paramX = columns[paramIndex]
             

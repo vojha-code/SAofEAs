@@ -15,7 +15,7 @@ listdir = os.listdir(root)
 
 DE = ["method", "algo", "problem", "pop_size", "base_vector", "diff_vector-pop_size_ratio", "crossover_method", "crossover_prob", "beta_min", "beta_ext", "BestSol_mean", "BestSol_std"]
 CMAES = ["method", "algo", "problem", "lambda", "mu-lambda_ratio", "sigma0", "alpha_mu", "rescale_sigma0", "BestSol_mean", "BestSol_std"]
-Algo = ['DE'] # 'DE','CMA-ES'
+Algo = ['CMA-ES'] # 'DE','CMA-ES'
 
 for algo in Algo:
     print(algo)
@@ -27,10 +27,10 @@ for algo in Algo:
     for dirs in listdir:
         if ('Problem' in dirs and algo in dirs):
             listFiles = os.listdir(os.path.join(root,os.path.join(dirs,'ModelEval')))
-            dirsVal = dirs.split(' ')[2]
+            dirsVal = dirs #.split(' ')[2]
             print('  ',dirs)
             for files in listFiles:
-                print('    ',files)
+                #print('    ',files)
                 params = [pVal for pVal in dirsVal.split('-') if 'ES' not in pVal]
                 paramsTemp = [float(param) for param in files.split('-') if param not in 'metrics.csv']
                 params.extend(paramsTemp)

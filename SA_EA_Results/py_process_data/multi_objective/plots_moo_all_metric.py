@@ -31,10 +31,10 @@ for algo in Algo:
     for dirs in listdir:
         if ('Problem' in dirs and algo in dirs):
             listFiles = os.listdir(os.path.join(root,os.path.join(dirs,'ModelEval')))
-            dirsVal = dirs.split(' ')[2]
+            dirsVal = dirs#.split(' ')[2]
             print('  ',dirs)
             for files in listFiles:
-                print('    ',files)
+                #print('    ',files)
                 params = [pVal for pVal in dirsVal.split('-') if 'ES' not in pVal]
                 params.remove('Problem')
                 paramsTemp = [float(param) for param in files.split('-') if param not in 'metrics.csv']
