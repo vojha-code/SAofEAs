@@ -9,6 +9,7 @@ Created on Mon Aug 23 11:51:26 2021
 """
 Created on Wed Aug 18 16:20:46 2021
 
+
 @author: yl918888
 """
 import os 
@@ -533,6 +534,7 @@ for algo in AlgoList:
 
             kmeans = KMeans(n_clusters=clusters_no).fit(dataCluster)
             centroids = kmeans.cluster_centers_
+
             labels = kmeans.labels_
             
             from sklearn.decomposition import PCA
