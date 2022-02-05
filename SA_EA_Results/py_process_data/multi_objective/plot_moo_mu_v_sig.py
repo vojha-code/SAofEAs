@@ -242,6 +242,77 @@ for algo in AlgoList:
     plt.savefig(os.path.join(plots, "Plot_Bar_"+plotAlgo+".png"),bbox_inches='tight')
     plt.show()
 
+#%% Line plot
+
+#MOEAD = [r"$\lambda$", r"$P[\mathrm{X}]$", r"$\mathrm{X}_{\mathrm{DI}}$", r"$P[\mathrm{PM}]$", r"$\mathrm{PM}_{\mathrm{DI}}$",r"$Mode$", r"$\epsilon_N$"]
+#NSGAIII = [r"$\lambda$", r"$P[\mathrm{X}]$", r"$\mathrm{X}_{\mathrm{DI}}$", r"$P[\mathrm{PM}]$", r"$\mathrm{PM}_{\mathrm{DI}}$", r"$K$"]
+
+
+AlgoList = ['MOEAD', 'NSGAIII']
+for algo in AlgoList:
+    listdir = os.listdir(folder)
+    
+    checkTest = algo+'_All'
+    i = 0
+    j = 0
+    for file in listdir:
+        if checkTest in file:
+            print(file)
+            pathData = os.path.join(folder,file)
+            data = pd.read_csv(pathData)    
+            columns = data.columns.tolist()
+            fig, axs = plt.subplots(3, len(columns)-7, figsize=(2*(len(columns)-4), (len(columns)-4)/2+3), sharey =True)
+            #fig, axs = plt.subplots(1, len(columns)-4, sharey =True)
+            
+            if 'MOEAD' in file:
+                cmap = plt.cm.get_cmap('prism') 
+                paramSTR = MOEAD
+            else:
+                cmap = plt.cm.get_cmap('nipy_spectral') 
+                paramSTR = NSGAIII
+    
+            colors = [cmap(each) for each in np.linspace(0, 1, len(paramSTR))]                  
+            Metric = ['GD', 'IGD', 'HV']
+            for i in range(len(Metric)):
+                j = 0
+                for paramIndex in range(4,len(columns)-3):
+                    panamLabel = paramSTR[paramIndex-4]
+                    colorsVal = colors[paramIndex-4]
+                    print(paramIndex,'  ',columns[paramIndex], '=', panamLabel)
+                    paramX = columns[paramIndex]
+                    
+                    
+                    dataXY = data[[paramX, Metric[i]]]
+                    dataXYGroup = dataXY.groupby(paramX, as_index=False).mean()
+            
+                    x = dataXYGroup[paramX].tolist()
+                    #y = dataXYGroup['BestSol_mean'].tolist()
+                    bins = np.linspace(min(x), max(x), num=20).tolist()
+                    groupsMean = dataXYGroup.groupby(pd.cut(dataXYGroup[paramX], bins)).mean()
+                    groupsStd = dataXYGroup.groupby(pd.cut(dataXYGroup[paramX], bins)).std()
+                    x = groupsMean[paramX].tolist()
+                    #x = [k for k in range(len(groupsMean[paramX].tolist()))]
+                    y = groupsMean[Metric[i]].tolist()
+                    yStd = groupsStd[Metric[i]].tolist()
+                    
+                    #plt.scatter(x,y)
+                    yVal =  np.asarray(y)
+                    #if i  == 2: #or i == 1 :# HV and IGD revirsed
+                    #   yNorm = (yVal - np.min(yVal)) / (np.max(yVal) - np.min(yVal))
+                    #else:
+                    yNorm = (yVal - np.min(yVal)) / (np.max(yVal) - np.min(yVal))
+                        
+                    axs[i,j].plot(x,yNorm, label=panamLabel, color=colorsVal)
+                    axs[i,j].legend(fontsize=16)
+        
+                    j = j + 1
+                
+                axs[i,0].set_ylabel(Metric[i]+'  Score', fontsize=16)
+                
+            plt.tight_layout()
+            plt.savefig(os.path.join(plots, file+".pdf"),bbox_inches='tight')
+            plt.savefig(os.path.join(plots, file+".png"),bbox_inches='tight')
+            plt.show()
 #%% Cluster plot 
 
 clusterMOEADk = [[2,3,2],
@@ -511,7 +582,13 @@ for algo in AlgoList:
             
             for k in range(len(labels)):
                 axs[i,j].scatter(x[k], y[k], s = 80, alpha=.3, color=colors[labels[k]])
-                axs[i,j].annotate(str(k+1), (x[k], y[k]))
+                
+                param_no = str(k+1)
+                if k > len(labels)/2:
+                    param_no = str(int(k-len(labels)/2)+1)
+                    
+                axs[i,j].annotate(param_no, (x[k], y[k]))
+                #axs[i,j].annotate(str(k+1), (x[k], y[k]))
             
             if i == 0 and j == 0:
                 axs[i,j].set_title('GD')
@@ -540,74 +617,87 @@ for algo in AlgoList:
     plt.savefig(os.path.join(plots, "Plot_Cluster_"+plotAlgo+"_Param.png"),bbox_inches='tight')
     plt.show()
 
-#%% Line plot
 
-#MOEAD = [r"$\lambda$", r"$P[\mathrm{X}]$", r"$\mathrm{X}_{\mathrm{DI}}$", r"$P[\mathrm{PM}]$", r"$\mathrm{PM}_{\mathrm{DI}}$",r"$Mode$", r"$\epsilon_N$"]
-#NSGAIII = [r"$\lambda$", r"$P[\mathrm{X}]$", r"$\mathrm{X}_{\mathrm{DI}}$", r"$P[\mathrm{PM}]$", r"$\mathrm{PM}_{\mathrm{DI}}$", r"$K$"]
+            
+#%% Statistical test of param
 
+MOEAD = [r"$\lambda$", r"$P[\mathrm{X}]$", r"$\mathrm{X}_{\mathrm{DI}}$", r"$P[\mathrm{PM}]$", r"$\mathrm{PM}_{\mathrm{DI}}$",r"$Mode$", r"$\epsilon_N$"]
+NSGAIII = [r"$\lambda$", r"$P[\mathrm{X}]$", r"$\mathrm{X}_{\mathrm{DI}}$", r"$P[\mathrm{PM}]$", r"$\mathrm{PM}_{\mathrm{DI}}$", r"$K$"]
 
 AlgoList = ['MOEAD', 'NSGAIII']
+ObjList = ['GD', 'HV', 'IGD']
+
 for algo in AlgoList:
-    listdir = os.listdir(folder)
+    root = os.path.join(folder,algo)
+    listdir = os.listdir(root)
+    for obj in ObjList:            
+        checkTest = algo+'_'+obj+'_'
+        print(checkTest)
+        for file in listdir:
+            if checkTest in file:
+                print(file)
+                pathData = os.path.join(root,file)
+                data = pd.read_csv(pathData)
+                columns = data.columns.tolist()
+                columnsMu = [colName for colName in columns if '.1' not in colName]
+                columnsSi = [colName for colName in columns if '.1' in colName]
+                dataMu = data[columnsMu]
+                dataSi = data[columnsSi]
+                
+                dataMuT = dataMu.T       
+                dataMuTnorm=(dataMuT-dataMuT.min())/(dataMuT.max()-dataMuT.min())
+                dataSiT = dataSi.T       
+                dataSiTnorm=(dataSiT-dataSiT.min())/(dataSiT.max()-dataSiT.min())
+                
+                dataMuTnorm = dataMuTnorm.fillna(0)
+                dataSiTnorm = dataSiTnorm.fillna(0)
+                
+                dataMunorm = dataMuTnorm.T
+                dataSinorm = dataSiTnorm.T
+                
+                dataClusterFunc  = pd.concat([dataMunorm, dataSinorm], axis=1)
+                dataClusterParams = pd.concat([dataMuTnorm, dataSiTnorm], axis=0)
+                
+                dataCluster = dataClusterParams
     
-    checkTest = algo+'_All'
-    i = 0
-    j = 0
-    for file in listdir:
-        if checkTest in file:
-            print(file)
-            pathData = os.path.join(folder,file)
-            data = pd.read_csv(pathData)    
-            columns = data.columns.tolist()
-            fig, axs = plt.subplots(3, len(columns)-7, figsize=(2*(len(columns)-4), (len(columns)-4)/2+3), sharey =True)
-            #fig, axs = plt.subplots(1, len(columns)-4, sharey =True)
+                #dataClusterParams
+                dataClusterStat = dataClusterFunc
+            # if check end
+        #all sampling files collected            
+        if algo == 'MOEAD':
+            columnsStat = []
+            columnsStat.extend(MOEAD) 
+            columnsStat.extend(MOEAD)
+        else:
+            columnsStat = []
+            columnsStat.extend(NSGAIII) 
+            columnsStat.extend(NSGAIII)
             
-            if 'MOEAD' in file:
-                cmap = plt.cm.get_cmap('prism') 
-                paramSTR = MOEAD
-            else:
-                cmap = plt.cm.get_cmap('nipy_spectral') 
-                paramSTR = NSGAIII
-    
-            colors = [cmap(each) for each in np.linspace(0, 1, len(paramSTR))]                  
-            Metric = ['GD', 'IGD', 'HV']
-            for i in range(len(Metric)):
-                j = 0
-                for paramIndex in range(4,len(columns)-3):
-                    panamLabel = paramSTR[paramIndex-4]
-                    colorsVal = colors[paramIndex-4]
-                    print(paramIndex,'  ',columns[paramIndex], '=', panamLabel)
-                    paramX = columns[paramIndex]
-                    
-                    
-                    dataXY = data[[paramX, Metric[i]]]
-                    dataXYGroup = dataXY.groupby(paramX, as_index=False).mean()
-            
-                    x = dataXYGroup[paramX].tolist()
-                    #y = dataXYGroup['BestSol_mean'].tolist()
-                    bins = np.linspace(min(x), max(x), num=20).tolist()
-                    groupsMean = dataXYGroup.groupby(pd.cut(dataXYGroup[paramX], bins)).mean()
-                    groupsStd = dataXYGroup.groupby(pd.cut(dataXYGroup[paramX], bins)).std()
-                    x = groupsMean[paramX].tolist()
-                    #x = [k for k in range(len(groupsMean[paramX].tolist()))]
-                    y = groupsMean[Metric[i]].tolist()
-                    yStd = groupsStd[Metric[i]].tolist()
-                    
-                    #plt.scatter(x,y)
-                    yVal =  np.asarray(y)
-                    #if i  == 2: #or i == 1 :# HV and IGD revirsed
-                    #   yNorm = (yVal - np.min(yVal)) / (np.max(yVal) - np.min(yVal))
-                    #else:
-                    yNorm = (yVal - np.min(yVal)) / (np.max(yVal) - np.min(yVal))
-                        
-                    axs[i,j].plot(x,yNorm, label=panamLabel, color=colorsVal)
-                    axs[i,j].legend(fontsize=16)
         
-                    j = j + 1
-                
-                axs[i,0].set_ylabel(Metric[i]+'  Score', fontsize=16)
-                
-            plt.tight_layout()
-            plt.savefig(os.path.join(plots, file+".pdf"),bbox_inches='tight')
-            plt.savefig(os.path.join(plots, file+".png"),bbox_inches='tight')
-            plt.show()
+        from scipy.stats import ttest_ind
+        dataStatAll = []
+        columsStatAll = []
+        for col1 in dataClusterStat.columns.tolist():
+            sample1  = dataClusterStat[col1].tolist()    
+            dataStatCol = []
+            columsStatAll = []
+            i = 0
+            for col2 in dataClusterStat.columns.tolist():
+                sample2  = dataClusterStat[col2].tolist()
+                #print(col1, col2, end='')
+                tTest = ttest_ind(sample1, sample2)
+                columsStatAll.append(columnsStat[i])
+                columsStatAll.append(columnsStat[i])
+                i = i + 1
+                dataStatCol.append(tTest[0])
+                dataStatCol.append(tTest[1])
+            dataStatAll.append(dataStatCol)
+            #print()
+        
+        # Create the pandas DataFrame
+        dataStatAllFrame = pd.DataFrame(dataStatAll, columns = columsStatAll)
+        dataStatAllFrame['index'] = columnsStat
+        #dataStatAllFrame.set_index(['index'])
+        saveFile = checkTest+'_Stat.csv'
+        dataStatAllFrame.to_csv(saveFile)
+        print('saved: ',saveFile)

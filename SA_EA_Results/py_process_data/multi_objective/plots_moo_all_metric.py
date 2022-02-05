@@ -21,8 +21,10 @@ MOEAD = ["method", "algo", "problem", "dim", "pop", "pSBX", "sbxDI", "pm", "pmDI
 
 Algo = ['NSGAIII', 'MOEAD'] # 'DE','CMA-ES'
 
+countAll = 0
 for algo in Algo:
     print(algo)
+    count = 0
     if algo == "NSGAIII":
         dfAlgo = pd.DataFrame(columns = NSGAIII)
     else:
@@ -41,6 +43,7 @@ for algo in Algo:
                 params.extend(paramsTemp)
                 pathData = os.path.join(root,os.path.join(os.path.join(dirs,'ModelEval'),files))
                 data = pd.read_csv(pathData)
+                count = count + len(data)
                 Best_GD_Mean = data.mean()['GD']
                 Best_IGD_Mean = data.std()['IGD']
                 Best_HV_Mean = data.std()['HV']
@@ -55,8 +58,10 @@ for algo in Algo:
                 
             # end for all files
         #end if dir problem 
-    #end all algo
+    #end  algo
     dfAlgo.to_csv(algo+"_All.csv", index=False)
+    print(algo, count)
+    countAll = countAll + count
 
 
 

@@ -28,7 +28,7 @@ i = 0
 j = 0
 for file in listdir:
     if checkTest in file:
-        print(file)
+        print(i,j,file)
         pathData = os.path.join(root,file)
         data = pd.read_csv(pathData)
         columns = data.columns.tolist()
@@ -257,8 +257,8 @@ for file in listdir:
         colors = [cmap(each) for each in np.linspace(0, 1, len(paramSTR))]                  
         j = 0
         for paramIndex in range(3,len(columns)-2):
-            panamLabel = paramSTR[paramIndex-4]
-            colorsVal = colors[paramIndex-4]
+            panamLabel = paramSTR[paramIndex-3]
+            colorsVal = colors[paramIndex-3]
             print(paramIndex,'  ',columns[paramIndex], '=', panamLabel)
             paramX = columns[paramIndex]
             
@@ -303,8 +303,10 @@ for file in listdir:
         plt.savefig(os.path.join(plots, file+".png"),bbox_inches='tight')
         plt.show()
     
+
+
 #%% Cluster plot 
-root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO\de-cma-es-10K_nfeval'
+root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO\SOO_10K_FunEval_33_Funs'
 listdir = os.listdir(root)
 
 markerList = ["o", "v", "*", "X", "D", "+", "3", "s"]
@@ -414,7 +416,13 @@ for file in listdir:
         
         for k in range(len(labels)):
             axs[i,j].scatter(x[k], y[k], s = 80, alpha=.5, color=colors[labels[k]])
-            axs[i,j].annotate(str(k+1), (x[k], y[k]))
+            
+            param_no = str(k+1)
+            #if k > len(labels)/2:
+            #    param_no = str(int(k-len(labels)/2)+1)
+                            
+            #if k < len(labels)/2:
+            axs[i,j].annotate(param_no, (x[k], y[k]))
         
         if i == 0 and j == 0:
             axs[i,j].set_title('CMAES')
@@ -443,9 +451,9 @@ plt.show()
 
 
 #%% Cluster Plot param
-root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO\de-cma-es-10K_nfeval'
+root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO\SOO_10K_FunEval_33_Funs'
 listdir = os.listdir(root)
-
+#listdir.remove(listdir[1])
 markerList = ["o", "v", "*", "X", "D", "+", "3", "s"]
 
 
@@ -462,7 +470,7 @@ i = 0
 j = 0
 for file in listdir:
     if checkTest in file:
-        #print(file)
+        print(i,j,file)
         pathData = os.path.join(root,file)
         data = pd.read_csv(pathData)
         columns = data.columns.tolist()
@@ -543,7 +551,12 @@ for file in listdir:
         
         for k in range(len(labels)):
             axs[i,j].scatter(x[k], y[k], s = 80, alpha=.5, color=colors[labels[k]])
-            axs[i,j].annotate(str(k+1), (x[k], y[k]))
+            
+            param_no = str(k+1)
+            if k > len(labels)/2:
+                param_no = str(int(k-len(labels)/2)+1)
+                
+            axs[i,j].annotate(param_no, (x[k], y[k]))
         
         if i == 0 and j == 0:
             axs[i,j].set_title('CMAES')
@@ -570,4 +583,85 @@ plt.savefig(os.path.join(plots, "Plot_Cluster_CMAES-DE_Param.pdf"),bbox_inches='
 plt.savefig(os.path.join(plots, "Plot_Cluster_CMAES-DE_Param.png"),bbox_inches='tight')
 plt.show()
 
+#%% Statistical test of param
+root = r'C:\Users\yl918888\Desktop\Evolutionary_Algorithms_Sensitivity_Analysis\SA_EA_Results\Results_SOO\SOO_10K_FunEval_33_Funs'
+listdir = os.listdir(root)
+
+DE = [r"$\lambda$", r"$\mathbf{b}_{\mathrm{type}}$", r"$\mathbf{b}\lambda_{\mathrm{ratio}}$", r"$\mathrm{X}$", r"$P[\mathrm{X}]$", r"$\beta_{\mathrm{min}}$", r"$\beta_{\mathrm{max}}$"]
+CMAES = [r"$\lambda$", r"$\mu\lambda_{\mathrm{ratio}}$", r"$\sigma_0$", r" $\alpha_{\mu}$", r"$\sigma_{0-scale}$"]
+
+
+for algo in ['ES','DE']:
+    checkTest = algo+'_Sample1K_Term10K'
+    print(checkTest)
+    for file in listdir:
+        if checkTest in file:
+            print(file)
+            pathData = os.path.join(root,file)
+            data = pd.read_csv(pathData)
+            columns = data.columns.tolist()
+            columnsMu = [colName for colName in columns if '.1' not in colName]
+            columnsSi = [colName for colName in columns if '.1' in colName]
+            dataMu = data[columnsMu]
+            dataSi = data[columnsSi]
+            
+            dataMuT = dataMu.T       
+            dataMuTnorm=(dataMuT-dataMuT.min())/(dataMuT.max()-dataMuT.min())
+            dataSiT = dataSi.T       
+            dataSiTnorm=(dataSiT-dataSiT.min())/(dataSiT.max()-dataSiT.min())
+            
+            dataMuTnorm = dataMuTnorm.fillna(0)
+            dataSiTnorm = dataSiTnorm.fillna(0)
+            
+            dataMunorm = dataMuTnorm.T
+            dataSinorm = dataSiTnorm.T
+            
+            dataClusterFunc  = pd.concat([dataMunorm, dataSinorm], axis=1)
+            dataClusterParams = pd.concat([dataMuTnorm, dataSiTnorm], axis=0)
+            
+            dataCluster = dataClusterParams
+
+            #dataClusterParams
+            dataClusterStat = dataClusterFunc
+        # if check end
+    #all sampling files collected            
+    if algo == 'DE':
+        saveFile = 'DE_Stat.csv'
+        columnsStat = []
+        columnsStat.extend(DE) 
+        columnsStat.extend(DE)
+    else:
+        saveFile = 'CMAES_Stat.csv'
+        columnsStat = []
+        columnsStat.extend(CMAES) 
+        columnsStat.extend(CMAES)
+        
+    
+    from scipy.stats import ttest_ind
+    dataStatAll = []
+    columsStatAll = []
+    for col1 in dataClusterStat.columns.tolist():
+        sample1  = dataClusterStat[col1].tolist()    
+        dataStatCol = []
+        columsStatAll = []
+        i = 0
+        for col2 in dataClusterStat.columns.tolist():
+            sample2  = dataClusterStat[col2].tolist()
+            #print(col1, col2, end='')
+            tTest = ttest_ind(sample1, sample2)
+            columsStatAll.append(columnsStat[i])
+            columsStatAll.append(columnsStat[i])
+            i = i + 1
+            dataStatCol.append(tTest[0])
+            dataStatCol.append(tTest[1])
+        dataStatAll.append(dataStatCol)
+        #print()
+    
+    # Create the pandas DataFrame
+    dataStatAllFrame = pd.DataFrame(dataStatAll, columns = columsStatAll)
+    dataStatAllFrame['index'] = columnsStat
+    #dataStatAllFrame.set_index(['index'])
+    dataStatAllFrame.to_csv(saveFile)
+    print('saved: ',saveFile)
+        
         
