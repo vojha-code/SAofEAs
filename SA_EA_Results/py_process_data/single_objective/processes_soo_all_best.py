@@ -31,7 +31,7 @@ for algo in Algo:
         if ('Problem' in dirs and algo in dirs):
             listFiles = os.listdir(os.path.join(root,os.path.join(dirs,'ModelEval')))
             dirsVal = dirs #.split(' ')[2]
-            print('  ',dirs)
+            print('  ',dirs, end=' ')
             for files in listFiles:
                 #print('    ',files)
                 params = [pVal for pVal in dirsVal.split('-') if 'ES' not in pVal]
@@ -39,7 +39,8 @@ for algo in Algo:
                 params.extend(paramsTemp)
                 pathData = os.path.join(root,os.path.join(os.path.join(dirs,'ModelEval'),files))
                 data = pd.read_csv(pathData)
-                count = count + len(data)
+                runs = len(data)
+                count = count + runs
                 BestSolMean = data.mean()['BestSolution']
                 BestSolStd = data.std()['BestSolution']
                 
@@ -51,6 +52,7 @@ for algo in Algo:
                     dfTemp = pd.DataFrame([params], columns=CMAES)
                 dfAlgo = pd.concat([dfAlgo,dfTemp])
             # end for all files
+            print(runs)
         #end if dir problem 
     #end all algo
     dfAlgo.to_csv(algo+"_All.csv", index=False)

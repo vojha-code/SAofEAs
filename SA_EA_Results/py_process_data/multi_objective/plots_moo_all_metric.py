@@ -62,10 +62,11 @@ for algo in Algo:
     dfAlgo.to_csv(algo+"_All.csv", index=False)
     print(algo, count)
     countAll = countAll + count
+print('Total',countAll)
 
-
-
-
+#NSGAIII 151200
+#MOEAD 171600
+#Total (322800 + 858580 + 720080)*10000
 
 
 

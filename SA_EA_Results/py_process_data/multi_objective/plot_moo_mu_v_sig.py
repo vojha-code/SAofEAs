@@ -138,17 +138,56 @@ for algo in AlgoList:
 
 #%% Bar plot
 
+def sortValue(xAll, yAll, paramSTR):
+    x =  np.zeros(len(xAll[0]))
+    y =  np.zeros(len(yAll[0]))
+    #for k in range(len(xAll)):
+    for k in range(3):        
+        x = x + xAll[k]
+        y = y + yAll[k]
+    x =  (x - np.min(x)) / (np.max(x) - np.min(x))
+    y =  (y - np.min(y)) / (np.max(y) - np.min(y))            
+    # Sum            
+    xpy = x+y
+    indexSort = np.argsort(xpy)
+        
+    paramSort = [paramSTR[idx] for idx in indexSort]
+    xSort = [x[idx] for idx in indexSort]
+    ySort = [y[idx] for idx in indexSort]
+    return paramSort, xSort, ySort
+
+AlgoList = ['moead','nsgaiii']
+
+MetricList = ['_GD_', '_IGD_', '_HV_']
+SampleList = ['MorisLHS_', 'Moris_', 'SOBAL_']
+
 for algo in AlgoList:
     root = os.path.join(folder,algo)
     listdir = os.listdir(root)
-    fig, axs = plt.subplots(3, 3, figsize=(10, 5), sharex=False, sharey=True)
+    fig, axs = plt.subplots(4, 4, figsize=(12, 6), sharex=False, sharey=True)
+    
+    
+    xAll_GD = []
+    xAll_IGD = []
+    xAll_HV = []
+    
+    yAll_GD = []
+    yAll_IGD = []
+    yAll_HV = []
+
+    xAll_L = []
+    xAll_M = []
+    xAll_S = []
+    
+    yAll_L = []
+    yAll_M = []
+    yAll_S = []    
     
     checkTest = 'var'
     i = 0
     j = 0
     for file in listdir:
         if checkTest in file:
-            print(file)
             pathData = os.path.join(root,file)
             data = pd.read_csv(pathData)
             columns = data.columns.tolist()
@@ -167,13 +206,6 @@ for algo in AlgoList:
             
             dataMuNormSum = dataMunorm.sum()
             dataSiNormSum = dataSinorm.sum()
-            
-            if '_GD' in file:
-                cmap = plt.cm.get_cmap('prism') 
-            elif '_IGD' in file:
-                cmap = plt.cm.get_cmap('nipy_spectral') 
-            else:
-                cmap = plt.cm.get_cmap('Set1') 
                 
             if 'MOEAD' in file:
                 paramSTR = MOEAD
@@ -182,7 +214,7 @@ for algo in AlgoList:
                 paramSTR = NSGAIII
                 plotAlgo = "NSGAIII"
     
-            if i < 2:             
+            if j < 2:             
                 xLabel = "$\mu$"
                 yLabel = "$\sigma$"
             else:
@@ -190,8 +222,8 @@ for algo in AlgoList:
                 yLabel = "$ST_i$"
                     
                 
-            colors = [cmap(each) for each in np.linspace(0, 1, len(columnsMu))]      
-            colors = ['black', 'gray']
+            #colors = [cmap(each) for each in np.linspace(0, 1, len(columnsMu))]      
+            colors = ['black', 'lightgray']
             width = 0.35
             x = dataMuNormSum.tolist()
             y = dataSiNormSum.tolist()
@@ -199,6 +231,32 @@ for algo in AlgoList:
             x =  (x - np.min(x)) / (np.max(x) - np.min(x))
             y =  np.asarray(y)
             y =  (y - np.min(y)) / (np.max(y) - np.min(y))
+            
+            if '_GD_' in file:
+                xAll_GD.append(x)    
+                yAll_GD.append(y)
+                #print('GD >>>',i,j)
+            
+            if '_IGD_' in file:
+                xAll_IGD.append(x)    
+                yAll_IGD.append(y)    
+                
+            if '_HV_' in file:
+                xAll_HV.append(x)    
+                yAll_HV.append(y)    
+                
+            if 'MorisLHS_' in file:
+                #print('     ', file)
+                xAll_L.append(x)    
+                yAll_L.append(y)    
+                
+            if 'Moris_' in file:
+                xAll_M.append(x)    
+                yAll_M.append(y)    
+                
+            if 'SOBAL_' in file:
+                xAll_S.append(x)    
+                yAll_S.append(y)    
             
             xpy = x+y
             indexSort = np.argsort(xpy)
@@ -210,33 +268,71 @@ for algo in AlgoList:
             #axs[i,j].bar(paramSTR, x, width, label =xLabel, color=colors[0], alpha=0.7)
             #axs[i,j].bar(paramSTR, y, width, bottom = x, label=yLabel, color=colors[1],alpha=0.7)
             
-            axs[i,j].bar(paramSort, xSort, width, label =xLabel, color=colors[0], alpha=1)
-            axs[i,j].bar(paramSort, ySort, width, bottom = xSort, label=yLabel, color=colors[1],alpha=1)
+            axs[i,j].bar(paramSort, xSort, width, label =xLabel, color="w", alpha=1, edgecolor=colors[0], linewidth=1)
+            axs[i,j].bar(paramSort, ySort, width, bottom = xSort, label=yLabel, color=colors[1],alpha=1, edgecolor=colors[0], linewidth=1)
+            print(i,j,algo,file)
             
+            #if j == 0:
+                #print(j, '>>>>>>>', file)
+            
+            if i == 0:                
+                print(i, '>>>>>>>', file)
             if j == 2 and i == 2:
-                axs[i,j].legend(ncol=1, loc='upper left')
+                axs[i,j].legend(ncol=2, loc='upper left')
             else:
-                axs[i,j].legend(ncol=1)
+                axs[i,j].legend(ncol=2)
     
             if i == 0 and j == 0:
-                axs[i,j].set_title('GD')
-            if i == 0 and j == 1:
-                axs[i,j].set_title('IGD')
-            if i == 0 and j == 2:
-                axs[i,j].set_title('HV')
+                axs[i,j].set_ylabel('GD')
+            if i == 1 and j == 0:
+                axs[i,j].set_ylabel('IGD')
+            if i == 2 and j == 0:
+                axs[i,j].set_ylabel('HV')
                 
             if i == 0 and j == 0:
-                axs[i,j].set_ylabel('Morris LHS\nScore')
-            if i == 1 and j == 0:
-                axs[i,j].set_ylabel('Morris\nScore')
-            if i == 2 and j == 0:
-                axs[i,j].set_ylabel('Sobol\nScore')
+                axs[i,j].set_title('Morris LHS')
+            if i == 0 and j == 1:
+                axs[i,j].set_title('Morris')
+            if i == 0 and j == 2:
+                axs[i,j].set_title('Sobol')
             
             # GO NEXT PLOT            
             i = i + 1
             if i%3 == 0:
                 i = 0
                 j = j + 1
+ 
+    axs[3,0].set_ylabel('GD + IGD + HV')
+    axs[0,3].set_title('LHS + Morris + Sobol')
+    
+    xLabel = "direct"
+    yLabel = "interaction"
+    
+    for k in range(3):
+        if k == 0:
+            paramSort_Met, xSort_Met, ySort_Met = sortValue(xAll_GD, yAll_GD, paramSTR)
+            paramSort_Sam, xSort_Sam, ySort_Sam = sortValue(xAll_L, yAll_L, paramSTR)
+        if k == 1:
+            paramSort_Met, xSort_Met, ySort_Met = sortValue(xAll_IGD, yAll_IGD, paramSTR)
+            paramSort_Sam, xSort_Sam, ySort_Sam = sortValue(xAll_M, yAll_M, paramSTR)
+        if k == 2:
+            paramSort_Met, xSort_Met, ySort_Met = sortValue(xAll_HV, yAll_HV, paramSTR)
+            paramSort_Sam, xSort_Sam, ySort_Sam = sortValue(xAll_S, yAll_S, paramSTR)          
+            
+        
+        axs[k,3].bar(paramSort_Met, xSort_Met, width, label =xLabel, color="w", alpha=1, edgecolor=colors[0], linewidth=1)
+        axs[k,3].bar(paramSort_Met, ySort_Met, width, bottom = xSort_Met, label=yLabel, color=colors[1],alpha=1, edgecolor=colors[0], linewidth=1)
+        axs[k,3].legend(ncol=1, loc='upper left')
+        print(k,3,algo,file)
+        
+        axs[3,k].bar(paramSort_Sam, xSort_Sam, width, label =xLabel, color="w", alpha=1, edgecolor=colors[0], linewidth=1)
+        axs[3,k].bar(paramSort_Sam, ySort_Sam, width, bottom = xSort_Sam, label=yLabel, color=colors[1],alpha=1, edgecolor=colors[0], linewidth=1)
+        axs[3,k].legend(ncol=1, loc='upper left')
+        print(k,3,algo, file)
+        
+    #axs[3,3].plot([], [], ' ')
+    axs[3,3].set_visible(False)
+    
     
     plt.tight_layout()
     plt.savefig(os.path.join(plots, "Plot_Bar_"+plotAlgo+".pdf"),bbox_inches='tight')
@@ -266,7 +362,7 @@ for algo in AlgoList:
             #fig, axs = plt.subplots(1, len(columns)-4, sharey =True)
             
             if 'MOEAD' in file:
-                cmap = plt.cm.get_cmap('prism') 
+                cmap = plt.cm.get_cmap('nipy_spectral') 
                 paramSTR = MOEAD
             else:
                 cmap = plt.cm.get_cmap('nipy_spectral') 
@@ -281,8 +377,7 @@ for algo in AlgoList:
                     colorsVal = colors[paramIndex-4]
                     print(paramIndex,'  ',columns[paramIndex], '=', panamLabel)
                     paramX = columns[paramIndex]
-                    
-                    
+   
                     dataXY = data[[paramX, Metric[i]]]
                     dataXYGroup = dataXY.groupby(paramX, as_index=False).mean()
             
@@ -310,10 +405,138 @@ for algo in AlgoList:
                 
                 axs[i,0].set_ylabel(Metric[i]+'  Score', fontsize=16)
                 
-            plt.tight_layout()
-            plt.savefig(os.path.join(plots, file+".pdf"),bbox_inches='tight')
-            plt.savefig(os.path.join(plots, file+".png"),bbox_inches='tight')
+            #plt.tight_layout()
+            #plt.savefig(os.path.join(plots, file+".pdf"),bbox_inches='tight')
+            #plt.savefig(os.path.join(plots, file+".png"),bbox_inches='tight')
             plt.show()
+
+#%% Line plot Methods specific (trail)
+
+#MOEAD = [r"$\lambda$", r"$P[\mathrm{X}]$", r"$\mathrm{X}_{\mathrm{DI}}$", r"$P[\mathrm{PM}]$", r"$\mathrm{PM}_{\mathrm{DI}}$",r"$Mode$", r"$\epsilon_N$"]
+#NSGAIII = [r"$\lambda$", r"$P[\mathrm{X}]$", r"$\mathrm{X}_{\mathrm{DI}}$", r"$P[\mathrm{PM}]$", r"$\mathrm{PM}_{\mathrm{DI}}$", r"$K$"]
+from matplotlib import colors as mcolors
+from scipy.ndimage import gaussian_filter1d
+colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+
+AlgoList = ['MOEAD', 'NSGAIII']
+for algo in AlgoList:
+    listdir = os.listdir(folder)
+    
+    checkTest = algo+'_All'
+    i = 0
+    j = 0
+    for file in listdir:
+        if checkTest in file:
+            print(file)
+            pathData = os.path.join(folder,file)
+            data = pd.read_csv(pathData)    
+            columns = data.columns.tolist()
+            fig, axs = plt.subplots(3, len(columns)-7, figsize=(2*(len(columns)-4), (len(columns)-4)/2+3), sharey =True)
+            #fig, axs = plt.subplots(1, len(columns)-4, sharey =True)
+            
+            if 'MOEAD' in file:
+                #cmap = plt.cm.get_cmap('nipy_spectral') 
+                paramSTR = MOEAD
+                plotName =  "MOEAD_All"
+            else:
+                #cmap = plt.cm.get_cmap('nipy_spectral') 
+                paramSTR = NSGAIII
+                plotName =  "NSGAIII_All"
+    
+            cmap = plt.cm.get_cmap('nipy_spectral') 
+            #colors = [cmap(each) for each in np.linspace(0, 1, len(paramSTR))]                  
+            colors = [cmap(each) for each in np.linspace(0, 1, 7)]                  
+            Metric = ['GD', 'IGD', 'HV']
+            #Metric = ['HV']
+            for i in range(len(Metric)):
+                j = 0
+                print(Metric[i])
+                for paramIndex in range(4,len(columns)-3):
+                    panamLabel = paramSTR[paramIndex-4]
+                    colorsVal = colors[paramIndex-4]
+                    print(paramIndex,'  ',columns[paramIndex], '=', panamLabel, end='')
+                    paramX = columns[paramIndex]
+                    
+                    dataXY = data[(data[Metric[i]] != 0)][[paramX, Metric[i]]]
+                    dataXYGroup = dataXY.groupby(paramX, as_index=False).mean()
+            
+                    x = dataXYGroup[paramX].tolist()
+                    #y = dataXYGroup['BestSol_mean'].tolist()
+                    bins = np.linspace(min(x), max(x), num=20).tolist()
+                    groupsMean = dataXYGroup.groupby(pd.cut(dataXYGroup[paramX], bins)).mean()
+                    groupsMean = groupsMean.dropna()
+                    groupsStd = dataXYGroup.groupby(pd.cut(dataXYGroup[paramX], bins)).std()
+                    x = groupsMean[paramX].tolist()
+                    #x = [k for k in range(len(groupsMean[paramX].tolist()))]
+                    y = groupsMean[Metric[i]].tolist()
+                    yStd = groupsStd[Metric[i]].tolist()
+                    
+                    #plt.scatter(x,y)
+                    yVal =  np.asarray(y)
+                    #if i  == 2: #or i == 1 :# HV and IGD revirsed
+                    #   yNorm = (yVal - np.min(yVal)) / (np.max(yVal) - np.min(yVal))
+                    #else:
+                    yNorm = (yVal - np.min(yVal)) / (np.max(yVal) - np.min(yVal))
+                    yNorm_smoothed = gaussian_filter1d(yNorm, sigma=1)
+                    #yNorm = yVal
+                        
+                    #axs[i,j].plot(x,yNorm, label=panamLabel, color=colorsVal)
+                    #axs[i,j].plot(x,yNorm,  color=colors[0], lw=2)
+                    axs[i,j].plot(x,yNorm_smoothed,  color=colors[0], lw=2)
+                    #axs[i,j].legend(fontsize=16)
+                    
+                    #colorsVal =  [colors['k'],colors['b'],colors['r']]
+                    print('{0:.2f}'.format(min(y)), '{0:.2f}'.format(max(y)),)
+                    Methods = ['MorrisLHS','Morris','SOBOL']#,
+                    MethodLebel = ['l','m','s']
+                    for k in range(len(Methods)):
+                        dataXY = data[(data[columns[0]] == Methods[k]) & (data[Metric[i]] != 0)][[paramX, Metric[i]]]
+                    
+                        #dataXY = data[[paramX, Metric[i]]]
+                        dataXYGroup = dataXY.groupby(paramX, as_index=False).mean()
+                
+                        x = dataXYGroup[paramX].tolist()
+                        #y = dataXYGroup['BestSol_mean'].tolist()
+                        bins = np.linspace(min(x), max(x), num=20).tolist()
+                        groupsMean = dataXYGroup.groupby(pd.cut(dataXYGroup[paramX], bins)).mean()
+                        groupsMean = groupsMean.dropna()
+                        groupsStd = dataXYGroup.groupby(pd.cut(dataXYGroup[paramX], bins)).std()
+                        x = groupsMean[paramX].tolist()
+                        #x = [k for k in range(len(groupsMean[paramX].tolist()))]
+                        y = groupsMean[Metric[i]].tolist()
+                        yStd = groupsStd[Metric[i]].tolist()
+                        
+                        #plt.scatter(x,y)
+                        yVal =  np.asarray(y)
+                        #if i  == 2: #or i == 1 :# HV and IGD revirsed
+                        #   yNorm = (yVal - np.min(yVal)) / (np.max(yVal) - np.min(yVal))
+                        #else:
+                        yNorm = (yVal - np.min(yVal)) / (np.max(yVal) - np.min(yVal))
+                        yNorm_smoothed = gaussian_filter1d(yNorm, sigma=1)
+                        #yNorm = yVal
+                            
+                        #axs[i,j].plot(x,yNorm, label=panamLabel+MethodLebel[k], color=colors[k+1])
+                        #axs[i,j].legend(fontsize=16)
+                        
+                        #axs[i,j].plot(x,yNorm, alpha=0.5, color=colors[k+1])
+                        axs[i,j].plot(x,yNorm_smoothed, alpha=0.5, color=colors[k+1])
+                        #axs[i,j].plot(x,yNorm, color=colors[k], linestyle="-",marker="o")
+                        if i == 2:
+                            axs[i,j].set_xlabel(panamLabel, fontsize=16)
+                    j = j + 1
+                    
+                
+                axs[i,0].set_ylabel(Metric[i]+'  Score', fontsize=16)
+                
+            plt.tight_layout()
+            plt.savefig(os.path.join(plots, plotName+".pdf"),bbox_inches='tight')
+            plt.savefig(os.path.join(plots, plotName+".png"),bbox_inches='tight')
+            plt.show()
+##Experiment with smothing            
+#from scipy.ndimage import gaussian_filter1d
+#y_smoothed = gaussian_filter1d(yNorm, sigma=1)
+#plt.plot(yNorm)
+#plt.plot(y_smoothed)
 #%% Cluster plot 
 
 clusterMOEADk = [[2,3,2],
@@ -477,6 +700,7 @@ clusterNSGAk = [[3,3,2],
                 [3,4,2]]
 
 
+
 for algo in AlgoList:
     root = os.path.join(folder,algo)
     listdir = os.listdir(root)
@@ -579,15 +803,15 @@ for algo in AlgoList:
             #plt.xlabel('k')
             #plt.ylabel('Sum_of_squared_distances')
             #plt.title('Elbow Method For Optimal k')
-            #plt.show()
-            
+            #plt.show()            
             
             for k in range(len(labels)):
                 axs[i,j].scatter(x[k], y[k], s = 80, alpha=.3, color=colors[labels[k]])
                 
                 param_no = str(k+1)
-                if k > len(labels)/2:
-                    param_no = str(int(k-len(labels)/2)+1)
+                if k >= len(labels)/2:
+                    param_no = "i"+str(int(k-len(labels)/2)+1)
+                #print(param_no)
                     
                 axs[i,j].annotate(param_no, (x[k], y[k]))
                 #axs[i,j].annotate(str(k+1), (x[k], y[k]))
